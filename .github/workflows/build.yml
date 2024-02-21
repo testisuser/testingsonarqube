@@ -1,30 +1,24 @@
 name: Build
 
 on: [push, pull_request]
-  
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     permissions: read-all
     steps:
-        - name: Check out Git repository
-          uses: actions/checkout@v2
-
-        # Set up Node.js for github actions
-        - name: Set up Node.js
-          uses: actions/setup-node@v2
-          with:
-            node-version: 14
-
-        - name: Install Dependencies
-          run: npm ci
-
-        # Make sure eslint uses the correct node version
-        # run eslint command to generate result file in json format
-        - name: Run ESLint
-          run: npx eslint . -f json -o eslint_report.json
-
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: |
+          node --version
+          npx eslint --version
+      - run: npm ci
+      - run: npx eslint . -f json -o eslint_report.json
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
